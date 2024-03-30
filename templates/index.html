@@ -1,0 +1,188 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://kit.fontawesome.com/391827d54c.js" crossorigin="anonymous"></script>
+  <link rel="stylesheet" href="{% static 'styles/index.css' %}">
+  <title>Whatsapp Clone</title>
+</head>
+
+<body>
+  <div class="background-green"></div>
+
+
+  <div class="main-container">
+    <div class="left-container">
+
+      <!--header -->
+      <div class="header">
+        <div class="user-img">
+          <img class="dp" src="https://www.codewithfaraz.com/InstaPic.png" alt="">
+        </div>
+        <div class="nav-icons">
+          <li><a href={% url 'store'%}><i class="fa-sharp fa-solid fa-users"></i></a></li>
+          <li><a href={% url 'notification'%}><i class="fa-solid fa-bell"></i></i></a></li>
+          <!-- <i class="fa-solid fa-users"> -->
+          <li><a href={% url 'setting'%}><i class="fa-solid fa-gear"></i></a></li>
+        </div>
+      </div>
+
+
+      <!--notification -->
+      <div class="notif-box">
+        <!-- <i class="fa-solid fa-bell-slash"></i> -->
+        <div class="notif-text">
+          <p>Get Notified of New Messages</p>
+          <!-- <a href="#">Turn on Desktop Notifications ›</a> -->
+        </div>
+        <i class="fa-solid fa-xmark"></i>
+      </div>
+
+      <!--search-container -->
+      <div class="search-container">
+        <div class="input">
+          <i class="fa-solid fa-magnifying-glass"></i>
+          <input type="text" placeholder="Search or start new chat   ">
+        </div>
+        <i class="fa-sharp fa-solid fa-bars-filter"></i>
+      </div>
+
+
+      <!--chats -->
+      <div class="chat-list">
+        {% comment %} {{user}} {% endcomment %}
+        {% for frnd in frndlist %}
+        {% if user|striptags != frnd.friend_id|striptags %}
+        <div class="chat-box" onclick="userChatsWithGivenFriend('{{frnd.friend_id}}')">
+        {% else %}
+        <div class="chat-box" onclick="userChatsWithGivenFriend('{{frnd.user_id}}')">
+        {% endif %}
+          <div class="img-box">
+            <img class="img-cover"
+              src="https://www.meme-arsenal.com/memes/b6a18f0ffd345b22cd219ef0e73ea5fe.jpg"
+              alt="">
+          </div>
+          <div class="chat-details">
+            <div class="text-head">
+              {% if frnd.friend_id|striptags != user|striptags %}
+              <h4>{{frnd.friend_id}}</h4>
+              {% else %}
+              <h4>{{frnd.user_id}}</h4>
+              {% endif %}
+              <p class="time unread">11:49</p>
+            </div>
+            <div class="text-message">
+              <p>“How are you?”</p>
+              <b>1</b>
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+        <!-- <div class="chat-box">
+          <div class="img-box">
+            <img class="img-cover"
+              src="https://images.pexels.com/photos/2379005/pexels-photo-2379005.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1"
+              alt="">
+          </div>
+          <div class="chat-details">
+            <div class="text-head">
+              <h4>Friend2</h4>
+              <p class="time unread">10:49</p>
+            </div>
+            <div class="text-message">
+              <p>“I’ll be there.”</p>
+              <b>4</b>
+            </div>
+          </div>
+        </div> -->
+      </div>
+
+    </div>
+
+
+    <div class="right-container">
+      <!--header -->
+      
+      <div class="header">
+        <div class="img-text">
+          <div class="user-img">
+            {% if frnd|striptags != user|striptags %}
+            <img class="dp"
+              src="https://images.pexels.com/photos/2474307/pexels-photo-2474307.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1"
+              alt="">
+            {% endif %}
+          </div>
+          {% if frnd|striptags != user|striptags %}
+          <h4>{{frnd}}</h4>
+          {% endif %}
+        </div>
+        <form action="{% url 'logout'%}">
+          <div class="nav-icons">
+            <!-- <li><i class="fa-solid fa-magnifying-glass"></i></li> <li><i class="fa-solid fa-video"></i></li>
+            <li><i class="fa-solid fa-ellipsis-vertical"></i></li><li><i class="fa-solid fa-phone"></i></li> -->
+            <button style="border:0px"><i class="fa-solid fa-2x fa-right-from-bracket"></i></button>
+          </div>
+        </form>
+      </div>
+      
+
+      <!--chat-container -->
+      <div class="chat-container">
+        {% for chat in chats %}
+          {% if chat.sender_id|striptags == user|striptags %}
+            <div class="message-box my-message">
+              <p>{{chat.msg}}<br><span>{{chat.msg_date}} {{chat.msg_time}}</span></p>
+            </div>
+          {% else %}
+            <div class="message-box friend-message">
+              <p>{{chat.msg}}<br><span>{{chat.msg_date}} {{chat.msg_time}} </span></p>
+            </div>
+          {% endif %} 
+        {% endfor %}
+        {% comment %} <div class="message-box my-message">
+          <p>Hello, How are you!!<br><span>07:43</span></p>
+        </div>
+        <div class="message-box friend-message">
+          <p>Hello, I am Fine!!<br><span>07:45</span></p>
+        </div> {% endcomment %}
+        
+      </div>
+
+      <!--input-bottom -->
+      <form action="{% url 'sendMsg' %}" method="post">
+        {% csrf_token %}
+        <div class="chatbox-input">
+          <!-- <i class="fa-regular fa-face-grin"></i> -->
+          <!-- <i cl  ass="fa-sharp fa-solid fa-paperclip"></i> -->
+          <input type="text" placeholder="Type a message" name="msg">
+          <button style="border:0px" ><i class="fa-solid fa-paper-plane"></i></button>
+        </div>
+      </form>
+    </div>
+
+  </div>
+</body>
+
+</html>
+
+<script>
+  function userChatsWithGivenFriend(friendId) {
+    // Redirect to login page with the friend ID as a URL parameter
+    console.log('script')
+    window.location.href = `/chatWithFriend/${friendId}/`;
+  }
+
+  window.addEventListener('pageshow', function(event) {
+    // Check if the page is being shown after a back/forward navigation
+    if (event.persisted) {
+        // Reload the page
+        location.reload();
+    }
+  });
+  
+</script>

@@ -1,0 +1,74 @@
+<!-- {% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{% static 'styles/store.css' %}">
+    <title>Store</title>
+</head>
+
+<body>
+    <div class="background-green"></div>
+
+    <div class="main-container">
+        <div class="header">
+            <h1>Store</h1>
+        </div>
+        <div class="list">
+            
+            </div>
+        </div>
+    </div>
+</body>
+
+</html> -->
+
+
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{% static 'styles/notification.css' %}">
+    <title>Notification</title>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+</head>
+
+<body>
+
+    <div class="background-green"></div>
+
+    <div class="main-container">
+        <div class="header">
+            <h1>Make Friends</h1>
+        </div>
+        <div class="req-list">
+            <form action="{% url 'store' %}" method="post">
+                {% csrf_token %}
+                {% for u in userList %}
+                <div class="req-box">
+                    {% if u|striptags != user|striptags %}
+                    <h3>{{u}}, Do you want to make friend
+                        {% if frndList|length == 0 %}
+                        <button class="btn btn-primary btn-right" name="friend" value="{{u}}">Follow</button></h3>
+                        {% elif u in frndList %}
+                        <button class="btn btn-secondary btn-right" name="friend" value="{{u}}">Sent</button></h3>
+                        {% elif u not in frndList %}
+                        <button class="btn btn-primary btn-right" name="friend" value="{{u}}">Follow</button></h3>
+                        {% else %}
+                        <button class="btn btn-primary btn-right" name="friend" value="{{u}}">Followed</button></h3>
+                        {% endif %}
+                    {% endif %}
+                </div>
+                {% endfor %}
+            </form>
+        </div>
+    </div>
+</body>
+
+</html>
