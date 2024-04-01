@@ -7,6 +7,8 @@ from .models import User,Themes, Friend_List, Groups, Group_Members, Chats, Grou
 
 from django.utils import timezone
 from datetime import datetime,date
+from django.db.models import Q
+
 
 # Create your views here.
 
@@ -30,17 +32,15 @@ def login(request):
             request.session['username'] = username
             return redirect('index')
         else:
-            messages.info(request,'Invalid credential')
+            messages.error(request,'Invalid credential !!')
             return render(request,'login.html')
     else:
-        print('notpost')    
+        print('not posted in login')    
         return render(request,'login.html')
 
 
 def signup(request):
     if request.method == 'POST':
-        # return render(request,'login.html')
-        
         firstname = request.POST['firstName']
         lastname = request.POST['lastName']
         dob = request.POST['dob']
@@ -51,11 +51,11 @@ def signup(request):
 
         if password==cpassword:
             if User.objects.filter(username=username).exists():
-                messages.info(request,"Username already exists")
+                messages.info(request,"Username already exists !!")
                 print("username exist")
                 return redirect('signup')
             elif User.objects.filter(phoneno=phoneno).exists():
-                messages.info(request,"MobileNo already exists")
+                messages.error(request,"MobileNo already exists !!")
                 print("mobile exist")
                 return redirect('signup')
             else:
@@ -66,15 +66,36 @@ def signup(request):
                 print("signup successfully")
                 return redirect('login')
         else:
-            messages.info(request,'Password not matching')
+            messages.info(request,'Password does not match !!')
             print("passwrod not match")
             return redirect('signup')
     else:
         return render(request,'signup.html')
 
 def setting(request):
-    username = request.session.get('username')
-    return render(request,'setting.html',{'username':username})
+    if request.method == 'POST':
+        username = request.POST['username']
+        mobileno = request.POST['mobileno']
+        password = request.POST['Password']
+        cpassword = request.POST['cPassword']
+        print(username)
+        print(mobileno)
+        print(password)
+        print(cpassword)
+
+        if password==cpassword:
+            username = request.session.get('username')
+            user = User.objects.get(username=username,phoneno=mobileno)
+            print(username)
+            if user:
+                user.set_password(password)
+                user.save()
+            else:
+                messages.error(request,"Invalid Credentials !!")
+        else:
+            messages.error(request,"Password does not match !!")
+    
+    return render(request,'setting.html')
 
 def notification(request):
     username = request.session.get('username')
@@ -102,36 +123,65 @@ def store(request):
     if request.method == 'POST':
         username = request.session.get('username')
         friend = request.POST.get('friend')
-
+        print(friend)
         user_id = User.objects.get(user_id=username)
         friend_id = User.objects.get(user_id=friend)
  
         obj = Friend_List.objects.create(user_id=user_id,friend_id=friend_id,friend_since=date.today(),friend_status='pending')
         obj.save()
+        return redirect('store')
+    else :
+        username = request.session.get('username')
+        # print(username)
+        user_obj_list = User.objects.all()
 
-    username = request.session.get('username')
-    print(username)
-    user_obj_list = User.objects.all()
-    frnd_obj_list = Friend_List.objects.filter(user_id=username,friend_status='pending') | Friend_List.objects.filter(friend_id=username,friend_status='pending')
+        sent_frnd_obj_list = Friend_List.objects.filter(user_id=username,friend_status='pending') | Friend_List.objects.filter(friend_id=username,friend_status='pending')
 
-    userobj = User.objects.get(username=username)
+        accept_frnd_obj_list = Friend_List.objects.filter(user_id=username,friend_status='accept') | Friend_List.objects.filter(friend_id=username,friend_status='accept')
 
-    frnd_list = []
-    user_list = []
+        userObj = User.objects.get(username=username)
 
-    for frnd in frnd_obj_list:
-        if userobj == frnd.user_id:
-            frnd_list.append(frnd.friend_id.username)
-        else:
-            frnd_list.append(frnd.user_id.username)
+        all_user_list = []
 
-    for user in user_obj_list:
-        if user.username != username:
-            user_list.append(user.username)
-    
-    print(frnd_list)
-    print(user_list)
-    return render(request,'store.html',{'userList':user_list,'frndList':frnd_list,'user':username})
+        for user in user_obj_list:
+            if user.username != username:
+                all_user_list.append(user.username)
+
+        print("all_user_list:")
+        print(all_user_list)
+
+        accept_user_list = []
+
+        for user in accept_frnd_obj_list:
+            if user.user_id != userObj:
+                accept_user_list.append(user.user_id.username)
+            else:
+                accept_user_list.append(user.friend_id.username)
+
+        sent_user_list = []
+
+        for user in sent_frnd_obj_list:
+            if user.user_id != userObj:
+                sent_user_list.append(user.user_id.username)
+            else:
+                sent_user_list.append(user.friend_id.username)
+        
+        final_list = []
+
+        for u in all_user_list:
+            if u not in accept_user_list:
+                final_list.append(u)
+
+        print("final_list:")
+        print(final_list)
+
+        print("sent_user_list:")
+        print(sent_user_list)
+
+        print("accept_user_list:")
+        print(accept_user_list)
+
+        return render(request,'store.html',{'userList':final_list,'sentList':sent_user_list,'user':username})
 
 def logout(request):
     return redirect('login')
@@ -141,7 +191,8 @@ def index(request):
         username = request.session.get('username')
         friend_id = username
         frndlist = Friend_List.objects.filter(user_id=username,friend_status='accept') | Friend_List.objects.filter(friend_id=username,friend_status='accept')
-        return render(request,'index.html',{'frndlist':frndlist,'user':username,'frnd':friend_id})
+        
+        return render(request,'index.html',{'frndlist':frndlist,'user':username,'frnd':friend_id,'today_date':date.today()})
     else:
         return redirect('login')
 
@@ -149,21 +200,29 @@ def chatWithFriend(request,friend_id):
     print('chatWithFriend '+friend_id);
     username = request.session.get('username')
     print(username)
+
     chats = Chats.objects.filter(sender_id=friend_id,receiver_id=username) | Chats.objects.filter(sender_id=username,receiver_id=friend_id)
     sortchats = chats.order_by('msg_date','msg_time')
 
     request.session['friend']=friend_id
     frndlist = Friend_List.objects.filter(user_id=username,friend_status='accept') | Friend_List.objects.filter(friend_id=username,friend_status='accept')
     
-    return render(request,'index.html',{'chats':sortchats,'user':username,'frnd':friend_id,'frndlist':frndlist})
+    return render(request,'index.html',{'chats':sortchats,'user':username,'frnd':friend_id,'frndlist':frndlist,'today_date':date.today()})
 
 def sendMsg(request):
     friend_id =  request.session.get('friend')
     username = request.session.get('username')
-    msg = request.POST['msg']
 
+    # print("username")
     userObj = User.objects.get(username=username)
     frndObj = User.objects.get(username=friend_id)
+
+    frndlistObj = Friend_List.objects.get(Q(friend_id=frndObj,user_id=userObj)|Q(friend_id=userObj,user_id=frndObj))
+    frndlistObj.last_chat_time = datetime.now().strftime("%H:%M")
+    frndlistObj.last_chat_date = date.today()
+    frndlistObj.save()
+
+    msg = request.POST['msg']
 
     chat = Chats.objects.create(sender_id=userObj,receiver_id=frndObj,msg=msg,msg_time=datetime.now().strftime("%H:%M"),msg_date=date.today())
     chat.save()
@@ -176,4 +235,4 @@ def sendMsg(request):
 
     frndlist = Friend_List.objects.filter(user_id=username,friend_status='accept') | Friend_List.objects.filter(friend_id=username,friend_status='accept')
     
-    return render(request,'index.html',{'chats':sortchats,'user':username,'frnd':friend_id,'frndlist':frndlist})
+    return render(request,'index.html',{'chats':sortchats,'user':username,'frnd':friend_id,'frndlist':frndlist,'today_date':date.today()})

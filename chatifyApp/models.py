@@ -24,6 +24,8 @@ class Friend_List(models.Model):
     friend_id = models.ForeignKey(User,to_field='user_id',on_delete=models.CASCADE,related_name='friend_list_friend_id')
     friend_since = models.DateField(null=True)
     friend_status = models.CharField(max_length=10,default='pending')
+    last_chat_date = models.DateField(null=True)
+    last_chat_time = models.TimeField(null=True)
 
 class Groups(models.Model):
     group_id = models.BigAutoField(primary_key=True,null=False,blank=False)

@@ -24,7 +24,6 @@
             <div class="req-box">
                 <form action="{% url 'notification' %}" method="post">
                     {% csrf_token %}
-                    {{frndReq.friend_id}}
                     {% if frndReq.user_id|striptags == user|striptags %}
                     <h3>{{frndReq.friend_id}} requested to follow you <button type="submit" class="btn btn-success" name="frnd" value="{{frndReq.friend_id}}">Accept</button> <button type="button" class="btn btn-danger">Cancle</button></h3>
                     {% else %}
@@ -35,13 +34,7 @@
             {% endfor %}
             <!-- <div class="req-box">
                 <p>@abcd_123 requested to follow you <button>accept</button><button>decline</button></p>
-            </div>
-            <div class="req-box">
-                <p>@abcd_123 requested to follow you <button>accept</button><button>decline</button></p>
-            </div>
-            <div class="req-box">
-                <p>@abcd_123 requested to follow you <button>accept</button><button>decline</button></p>
-            </div>  -->
+            </div>-->
         </div>
     </div>
 </body>

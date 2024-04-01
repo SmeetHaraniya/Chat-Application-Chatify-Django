@@ -30,6 +30,10 @@
                 <!-- <span class="fas fa-key"></span> -->
                 <input type="password" name="password" id="password" placeholder="Password" required>
             </div>
+            <span style="color: red;">{% for msg in messages%}
+                {{msg}}
+                {% endfor %}
+            </span>
             <button class="btn mt-3">Login</button>
         </form>
         <div class="text-center fs-6">

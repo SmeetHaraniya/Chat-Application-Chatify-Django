@@ -44,6 +44,11 @@
             <div class="form-field d-flex align-items-center">
                 <input type="password" name="cpassword" id="cpassword" placeholder="Confirm Password" required>
             </div>
+            <span style="color: red;">
+                {% for msg in messages%}
+                    {{msg}}
+                {% endfor %}
+            </span>
             <button class="btn mt-3">Sign Up</button>
         </form>
         <div class="text-center fs-6">

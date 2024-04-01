@@ -1,4 +1,5 @@
 {% load static %}
+{% load tz %}
 
 <!DOCTYPE html>
 <html lang="en">
@@ -22,7 +23,7 @@
       <!--header -->
       <div class="header">
         <div class="user-img">
-          <img class="dp" src="https://www.codewithfaraz.com/InstaPic.png" alt="">
+          <img class="dp" src="https://www.meme-arsenal.com/memes/b6a18f0ffd345b22cd219ef0e73ea5fe.jpg" alt="">
         </div>
         <div class="nav-icons">
           <li><a href={% url 'store'%}><i class="fa-sharp fa-solid fa-users"></i></a></li>
@@ -74,12 +75,17 @@
               {% else %}
               <h4>{{frnd.user_id}}</h4>
               {% endif %}
-              <p class="time unread">11:49</p>
+              {% if frnd.last_chat_date|striptags == today_date|striptags %} 
+              <p class="time unread">{{frnd.last_chat_time}}</p>
+              {% elif frnd.last_chat_date == "" %}
+              <p class="time unread">{{frnd.last_chat_date}}</p>
+              {% endif %}
+              
             </div>
-            <div class="text-message">
+            {% comment %} <div class="text-message">
               <p>“How are you?”</p>
               <b>1</b>
-            </div>
+            </div> {% endcomment %}
           </div>
         </div>
         {% endfor %}
@@ -113,7 +119,7 @@
           <div class="user-img">
             {% if frnd|striptags != user|striptags %}
             <img class="dp"
-              src="https://images.pexels.com/photos/2474307/pexels-photo-2474307.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1"
+              src="https://www.meme-arsenal.com/memes/b6a18f0ffd345b22cd219ef0e73ea5fe.jpg"
               alt="">
             {% endif %}
           </div>
@@ -154,6 +160,7 @@
       </div>
 
       <!--input-bottom -->
+      {% if frnd|striptags != user|striptags %}
       <form action="{% url 'sendMsg' %}" method="post">
         {% csrf_token %}
         <div class="chatbox-input">
@@ -163,6 +170,7 @@
           <button style="border:0px" ><i class="fa-solid fa-paper-plane"></i></button>
         </div>
       </form>
+      {% endif %}
     </div>
 
   </div>

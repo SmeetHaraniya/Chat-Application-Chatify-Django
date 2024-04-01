@@ -13,5 +13,4 @@ urlpatterns = [
     path('store',views.store,name='store'),
     path('chatWithFriend/<str:friend_id>/',views.chatWithFriend,name='chatWithFriend'),
     path('sendMsg',views.sendMsg,name='sendMsg'),
-    # path('frndReq',views.frndReq,name='frndReq')
 ]
