@@ -6,7 +6,7 @@ from django.contrib.auth.models import User, auth
 from .models import User,Themes, Friend_List, Groups, Group_Members, Chats, Group_chat
 
 from django.utils import timezone
-from datetime import datetime,date
+from datetime import datetime,date,timedelta
 from django.db.models import Q
 
 
@@ -71,6 +71,9 @@ def signup(request):
         return render(request,'signup.html')
 
 def setting(request):
+    if request.session.get('username') is None:
+        return redirect('login')
+
     if request.method == 'POST':
         username = request.POST['username']
         mobileno = request.POST['mobileno']
@@ -98,24 +101,40 @@ def setting(request):
     return render(request,'setting.html')
 
 def notification(request):
+    if request.session.get('username') is None:
+        return redirect('login')
+
     username = request.session.get('username')
     if request.method == 'POST':
-        frnd = request.POST.get('frnd')
-        print(frnd)
-        try :
+        if 'frnd' in request.POST:
+            frnd = request.POST.get('frnd')
+            print(frnd)
+            try :
+                frndObj = Friend_List.objects.filter(user_id=username,friend_id=frnd) | Friend_List.objects.filter(user_id=frnd,friend_id=username)
+                obj = frndObj.first()
+                # print("obj")
+                obj.friend_status = "accept"
+                obj.save()
+            except Exception as e:
+                print(e)
+        else: 
+            frnd = request.POST.get('reject')
+            print(username)
+            print(frnd)
             frndObj = Friend_List.objects.filter(user_id=username,friend_id=frnd) | Friend_List.objects.filter(user_id=frnd,friend_id=username)
+            print('reject')
+            print(frndObj)
             obj = frndObj.first()
-            # print("obj")
-            obj.friend_status = "accept"
-            obj.save()
-        except Exception as e:
-            print(e)
-        print(frnd)
-        
+            obj.delete()
+
     frndReqList = Friend_List.objects.filter(user_id=username,friend_status='pending') | Friend_List.objects.filter(friend_id=username,friend_status='pending')
     return render(request,'notification.html',{'frndReqList':frndReqList,'user':username})
 
+
 def store(request):
+    if request.session.get('username') is None:
+        return redirect('login')
+
     if request.method == 'POST':
         username = request.session.get('username')
         friend = request.POST.get('friend')
@@ -138,9 +157,9 @@ def store(request):
         userObj = User.objects.get(username=username)
 
         all_user_list = []
-
+        admin = 'a1' 
         for user in user_obj_list:
-            if user.username != username:
+            if user.username != username and user.username != admin:
                 all_user_list.append(user.username)
 
         print("all_user_list:")
@@ -187,12 +206,15 @@ def index(request):
         username = request.session.get('username')
         friend_id = username
         frndlist = Friend_List.objects.filter(user_id=username,friend_status='accept') | Friend_List.objects.filter(friend_id=username,friend_status='accept')
-        
-        return render(request,'index.html',{'frndlist':frndlist,'user':username,'frnd':friend_id,'today_date':date.today()})
+        sortfrndlist = frndlist.order_by('-last_chat_date')
+        return render(request,'index.html',{'frndlist':sortfrndlist,'user':username,'frnd':friend_id,'today_date':date.today(),'yesterday_date':date.today()-timedelta(days=1)})
     else:
         return redirect('login')
 
 def chatWithFriend(request,friend_id):
+    if request.session.get('username') is None:
+        return redirect('login')
+
     print('chatWithFriend '+friend_id)
     username = request.session.get('username')
     print(username)
@@ -202,10 +224,14 @@ def chatWithFriend(request,friend_id):
 
     request.session['friend']=friend_id
     frndlist = Friend_List.objects.filter(user_id=username,friend_status='accept') | Friend_List.objects.filter(friend_id=username,friend_status='accept')
-    
-    return render(request,'index.html',{'chats':sortchats,'user':username,'frnd':friend_id,'frndlist':frndlist,'today_date':date.today()})
+    sortfrndlist = frndlist.order_by('-last_chat_date')
+    print(date.today()-timedelta(days=1))
+    return render(request,'index.html',{'chats':sortchats,'user':username,'frnd':friend_id,'frndlist':sortfrndlist,'today_date':date.today(),'yesterday_date':date.today()-timedelta(days=1)})
 
 def sendMsg(request):
+    if request.session.get('username') is None:
+        return redirect('login')
+
     friend_id =  request.session.get('friend')
     username = request.session.get('username')
 
@@ -230,5 +256,5 @@ def sendMsg(request):
     sortchats = chats.order_by('msg_time','msg_date')
 
     frndlist = Friend_List.objects.filter(user_id=username,friend_status='accept') | Friend_List.objects.filter(friend_id=username,friend_status='accept')
-    
-    return render(request,'index.html',{'chats':sortchats,'user':username,'frnd':friend_id,'frndlist':frndlist,'today_date':date.today()})
+    sortfrndlist = frndlist.order_by('-last_chat_date','-last_chat_time')
+    return render(request,'index.html',{'chats':sortchats,'user':username,'frnd':friend_id,'frndlist':sortfrndlist,'today_date':date.today()})

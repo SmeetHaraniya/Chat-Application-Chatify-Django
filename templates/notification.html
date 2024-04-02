@@ -27,20 +27,42 @@
                     {% if frndReq.user_id|striptags == user|striptags %}
                     <h3>{{frndReq.friend_id}} requested to follow you 
                         <button type="submit" class="btn btn-success" name="frnd" value="{{frndReq.friend_id}}">Accept</button> 
-                        <button type="submit" name="reject" value="{{frndReq.friend_id}}" class="btn btn-danger">Reject</button></h3>
+                        <button type="submit" class="btn btn-danger" name="reject" value="{{frndReq.friend_id}}">Reject</button></h3>
                     {% else %}
                     <h3>{{frndReq.user_id}} requested to follow you 
                         <button type="submit" class="btn btn-success" name="frnd" value="{{frndReq.user_id}}">Accept</button> 
-                        <button type="submit" name="reject" value="{{frndReq.user_id}}" class="btn btn-danger">Reject</button></h3>
+                        <button type="submit" class="btn btn-danger" name="reject" value="{{frndReq.user_id}}">Reject</button></h3>
                     {% endif %}
                 </form>
             </div>
             {% endfor %}
-            <!-- <div class="req-box">
-                <p>@abcd_123 requested to follow you <button>accept</button><button>decline</button></p>
-            </div>-->
         </div>
     </div>
 </body>
 
 </html>
+
+
+
+
+
+<!-- # def notification(request):
+#     if request.session.get('username') is None:
+#         return redirect('login')
+
+#     username = request.session.get('username')
+#     if request.method == 'POST':
+#         frnd = request.POST.get('frnd')
+#         print(frnd)
+#         try :
+#             frndObj = Friend_List.objects.filter(user_id=username,friend_id=frnd) | Friend_List.objects.filter(user_id=frnd,friend_id=username)
+#             obj = frndObj.first()
+#             # print("obj")
+#             obj.friend_status = "accept"
+#             obj.save()
+#         except Exception as e:
+#             print(e)
+#         print(frnd)
+        
+#     frndReqList = Friend_List.objects.filter(user_id=username,friend_status='pending') | Friend_List.objects.filter(friend_id=username,friend_status='pending')
+#     return render(request,'notification.html',{'frndReqList':frndReqList,'user':username}) -->

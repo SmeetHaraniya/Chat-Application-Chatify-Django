@@ -76,6 +76,8 @@
               {% endif %}
               {% if frnd.last_chat_date|striptags == today_date|striptags %} 
               <p class="time unread">{{frnd.last_chat_time}}</p>
+              {% elif frnd.last_chat_date|striptags == yesterday_date|striptags%}
+              <p class="time unread">yesterday</p>
               {% elif frnd.last_chat_date %}
               <p class="time unread">{{frnd.last_chat_date}}</p>
               {% endif %}
