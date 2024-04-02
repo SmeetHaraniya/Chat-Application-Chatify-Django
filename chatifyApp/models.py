@@ -27,6 +27,14 @@ class Friend_List(models.Model):
     last_chat_date = models.DateField(null=True)
     last_chat_time = models.TimeField(null=True)
 
+class Chats(models.Model):
+    sender_id = models.ForeignKey(User,to_field='user_id',on_delete=models.CASCADE,related_name='chat_sender_id')
+    receiver_id = models.ForeignKey(User,to_field='user_id',on_delete=models.CASCADE,related_name='chat_receiver_id')
+    msg = models.TextField()
+    msg_time = models.TimeField(null=True)
+    msg_date = models.DateField(null=True)
+
+
 class Groups(models.Model):
     group_id = models.BigAutoField(primary_key=True,null=False,blank=False)
     group_name = models.CharField(max_length=255,null=False)
@@ -38,16 +46,10 @@ class Group_Members(models.Model):
         unique_together = (('user_id', 'group_id'),)
     user_id = models.ForeignKey(User,to_field='user_id',on_delete=models.CASCADE,related_name='group_member_user_id')
     group_id = models.ForeignKey(Groups,to_field='group_id',on_delete=models.CASCADE,related_name='group_member_group_id')
-    
-    
-class Chats(models.Model):
-    sender_id = models.ForeignKey(User,to_field='user_id',on_delete=models.CASCADE,related_name='chat_sender_id')
-    receiver_id = models.ForeignKey(User,to_field='user_id',on_delete=models.CASCADE,related_name='chat_receiver_id')
-    msg = models.TextField()
-    msg_time = models.TimeField(null=True)
-    msg_date = models.DateField(null=True)
 
 class Group_chat(models.Model):
     group_id = models.ForeignKey(Groups,to_field='group_id',on_delete=models.CASCADE,related_name='group_chat_id')
     sender_id = models.ForeignKey(User,to_field='user_id',on_delete=models.CASCADE,related_name='group_chat_sender_id')
-    msg = models.TextField()
+    msg = models.TextField()   
+    
+

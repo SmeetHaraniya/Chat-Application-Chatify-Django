@@ -28,7 +28,6 @@ def login(request):
         if user is not None:
             auth.login(request,user)
             print('login successfully')
-            # return render(request,'index.html')
             request.session['username'] = username
             return redirect('index')
         else:
@@ -37,7 +36,6 @@ def login(request):
     else:
         print('not posted in login')    
         return render(request,'login.html')
-
 
 def signup(request):
     if request.method == 'POST':
@@ -85,11 +83,13 @@ def setting(request):
 
         if password==cpassword:
             username = request.session.get('username')
-            user = User.objects.get(username=username,phoneno=mobileno)
+            userlist = User.objects.filter (username=username,phoneno=mobileno)
+            user = userlist.first()
             print(username)
             if user:
                 user.set_password(password)
                 user.save()
+                messages.info(request,"Password was changed successfully !!")
             else:
                 messages.error(request,"Invalid Credentials !!")
         else:
@@ -99,25 +99,21 @@ def setting(request):
 
 def notification(request):
     username = request.session.get('username')
-    print(request.method)
     if request.method == 'POST':
-        print("username")
         frnd = request.POST.get('frnd')
         print(frnd)
         try :
             frndObj = Friend_List.objects.filter(user_id=username,friend_id=frnd) | Friend_List.objects.filter(user_id=frnd,friend_id=username)
             obj = frndObj.first()
             # print("obj")
-            # print(obj)
             obj.friend_status = "accept"
             obj.save()
         except Exception as e:
             print(e)
         print(frnd)
-    print("Helloo")
+        
     frndReqList = Friend_List.objects.filter(user_id=username,friend_status='pending') | Friend_List.objects.filter(friend_id=username,friend_status='pending')
     return render(request,'notification.html',{'frndReqList':frndReqList,'user':username})
-    # return render(request,'notification.html')
 
 def store(request):
     if request.method == 'POST':
@@ -197,7 +193,7 @@ def index(request):
         return redirect('login')
 
 def chatWithFriend(request,friend_id):
-    print('chatWithFriend '+friend_id);
+    print('chatWithFriend '+friend_id)
     username = request.session.get('username')
     print(username)
 

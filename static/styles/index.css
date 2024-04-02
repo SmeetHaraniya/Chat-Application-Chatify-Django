@@ -91,7 +91,7 @@ body {
 .nav-icons {
   display:flex;
   justify-content: flex-end;
-  padding-left: 110px;
+  padding-left: 105px;
 }
 
 .nav-icons li {

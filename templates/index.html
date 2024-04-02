@@ -22,7 +22,7 @@
 
       <!--header -->
       <div class="header">
-        <div class="user-img">
+        <div class="user-img" style="height:45px;width:60px;">
           <img class="dp" src="https://www.meme-arsenal.com/memes/b6a18f0ffd345b22cd219ef0e73ea5fe.jpg" alt="">
         </div>
         <div class="nav-icons">
@@ -56,7 +56,6 @@
 
       <!--chats -->
       <div class="chat-list">
-        {% comment %} {{user}} {% endcomment %}
         {% for frnd in frndlist %}
         {% if user|striptags != frnd.friend_id|striptags %}
         <div class="chat-box" onclick="userChatsWithGivenFriend('{{frnd.friend_id}}')">
@@ -77,15 +76,11 @@
               {% endif %}
               {% if frnd.last_chat_date|striptags == today_date|striptags %} 
               <p class="time unread">{{frnd.last_chat_time}}</p>
-              {% elif frnd.last_chat_date == "" %}
+              {% elif frnd.last_chat_date %}
               <p class="time unread">{{frnd.last_chat_date}}</p>
               {% endif %}
               
             </div>
-            {% comment %} <div class="text-message">
-              <p>“How are you?”</p>
-              <b>1</b>
-            </div> {% endcomment %}
           </div>
         </div>
         {% endfor %}
@@ -166,7 +161,7 @@
         <div class="chatbox-input">
           <!-- <i class="fa-regular fa-face-grin"></i> -->
           <!-- <i cl  ass="fa-sharp fa-solid fa-paperclip"></i> -->
-          <input type="text" placeholder="Type a message" name="msg">
+          <input type="text" placeholder="Type a message" name="msg" required>
           <button style="border:0px" ><i class="fa-solid fa-paper-plane"></i></button>
         </div>
       </form>

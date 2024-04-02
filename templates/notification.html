@@ -25,9 +25,13 @@
                 <form action="{% url 'notification' %}" method="post">
                     {% csrf_token %}
                     {% if frndReq.user_id|striptags == user|striptags %}
-                    <h3>{{frndReq.friend_id}} requested to follow you <button type="submit" class="btn btn-success" name="frnd" value="{{frndReq.friend_id}}">Accept</button> <button type="button" class="btn btn-danger">Cancle</button></h3>
+                    <h3>{{frndReq.friend_id}} requested to follow you 
+                        <button type="submit" class="btn btn-success" name="frnd" value="{{frndReq.friend_id}}">Accept</button> 
+                        <button type="submit" name="reject" value="{{frndReq.friend_id}}" class="btn btn-danger">Reject</button></h3>
                     {% else %}
-                    <h3>{{frndReq.user_id}} requested to follow you <button type="submit" class="btn btn-success" name="frnd" value="{{frndReq.user_id}}">Accept</button> <button type="button" class="btn btn-danger">Cancle</button></h3>
+                    <h3>{{frndReq.user_id}} requested to follow you 
+                        <button type="submit" class="btn btn-success" name="frnd" value="{{frndReq.user_id}}">Accept</button> 
+                        <button type="submit" name="reject" value="{{frndReq.user_id}}" class="btn btn-danger">Reject</button></h3>
                     {% endif %}
                 </form>
             </div>
